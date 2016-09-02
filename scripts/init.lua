@@ -1,36 +1,37 @@
---wifi.setmode(wifi.STATIONAP)
---wifi.sta.config("testpoint","")
--- wifi.sta.connect()
---wifi.sta.setip({ip="192.168.1.4",netmask="255.255.255.0",gateway="192.168.1.1"})
+print("### HELLO ###")
 
+wifi.setmode(wifi.STATION)
+wifi.sta.disconnect()
+wifi.setmode(wifi.SOFTAP)
+wifi.sta.disconnect()
+wifi.sleeptype(wifi.NONE_SLEEP)
+wifi.ap.config({ssid="ESP8266",pwd="12345678"})
+wifi.ap.setip({ip="192.168.1.1",netmask="255.255.255.0",gateway="192.168.1.1"})
+wifi.setmode(wifi.SOFTAP)
+--collectgarbage();
+print("### END ###")
 
-wifi.setmode(wifi. STATIONAP) -- set mode to station access point
-wifi.ap.config({ssid= "espha", pwd="11111111"}) -- configure own SSID as ‘ESP_TEST’ and password of ‘123456789’
-wifi.ap.setip({ip="192.168.1.4",netmask="255.255.255.0",gateway="192.168.1.1"})
-
-print("ESP8266 mode is: " .. wifi.getmode())
-print("The module MAC address is: " .. wifi.ap.getmac())
-print("Config done, IP is " .. wifi.ap.getip())
-
+srv=nil
+collectgarbage();
 srv=net.createServer(net.TCP)
 srv:listen(80,function(conn)
-	conn:on("receive",function(conn,request)
-		print(request)
-		conn:send("<h1> Hello, NodeMcu.</h1>")
-	end)
-	conn:on("sent",function(conn) conn:close() end)
+        conn:on("receive",function(conn,request)
+                --print(request)
+		t_now = tmr.time()
+		--len = measure_HC_SR04(trigger,echo)
+                --conn:send("<h1> NodeMCU TIME: "..t_now.." MEASURE: "..len.."</h1>")
+		local dist = 0
+		local send_str="<html><head><title>NodeMCU</title> \
+				<meta http-equiv=\"refresh\" content=\"10\" /> \
+				</head><body> \
+				<h1> NodeMCU <br>TIME: "..t_now.."<br>LEN: "..dist.."</h1> \
+				</body></html>"
+                conn:send(send_str)
+		tmr.delay(3000)
+        end)
+        conn:on("sent",function(conn)
+		conn:close()
+        end)
 end)
+--tmr.alarm(0, 3000, 1, function() print("esp...") end )
 
-
---[[
-lighton=0
-tmr.alarm(0,1000,1,function() -- Timer will be 1 second
-if lighton==0 then
-	lighton=1
-	led(512,512,512) -- 512/1024, 50% duty cycle
-else
-	lighton=0
-	led(0,0,0)
-end
-end)
-]]
