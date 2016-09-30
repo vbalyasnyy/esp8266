@@ -1,40 +1,100 @@
-function set(a, b) pwm.close(1) pwm.setup(1, a, b) pwm.start(1) end
 
-set(10, 512) tmr.delay(100000) set(100, 512) tmr.delay(100000) set(1000, 512) tmr.delay(100000) pwm.close(1)
+motor = {};
 
-function acc(time, step, wide)
-		for freq=step,1000,1000/step do
-			pwm.close(1)
-			pwm.setup(1, freq, (1023*wide)/100)
-			pwm.start(1)
-			#print(freq)
-			tmr.delay(time*1000000/step)
-		end
-		pwm.close(1)
+function motor.init(Pleft, Prigth, Cleft, Crigth)
+	local self = {};
+	self.speed_max = 10;
+	self.Pleft=Pleft;
+	self.Cleft=Cleft;
+	self.Prigth=Prigth;
+	self.Crigth=Crigth;
+
+	gpio.mode(self.Pleft, gpio.OUTPUT)
+	gpio.mode(self.Prigth, gpio.OUTPUT)
+	gpio.mode(self.Cleft, gpio.OUTPUT)
+	gpio.mode(self.Crigth, gpio.OUTPUT)
+
+	function self.start() pwm.start(self.Pleft) pwm.start(self.Prigth) end
+	function self.stop() pwm.stop(self.Pleft) pwm.stop(self.Prigth)
+			gpio.write(self.Pleft, gpio.LOW) gpio.write(self.Prigth, gpio.LOW) end
+	function self.move(time)
+		self.start()
+		tmr.delay(time);
+		self.stop()
 	end
 
+	function self.left() gpio.write(self.Cleft, gpio.HIGH) gpio.write(self.Crigth, gpio.HIGH) end
+	function self.rigth() gpio.write(self.Cleft, gpio.LOW) gpio.write(self.Crigth, gpio.LOW) end
+	function self.forward() gpio.write(self.Cleft, gpio.HIGH) gpio.write(self.Crigth, gpio.LOW) end
+	function self.back() gpio.write(self.Cleft, gpio.LOW) gpio.write(self.Crigth, gpio.HIGH) end
+	function self.rotate(direct)
+		if direct == "left" then self.left()
+		elseif direct == "rigth" then self.rigth()
+		elseif direct == "forward" then self.forward()
+		elseif direct == "back" then self.back()
+		else print("#DBG# motor.rotate: bad value")
+		end
+	end
 
-left=1
-right=2
+	function self.pwm(freq, duty)
+		pwm.setup(self.Pleft, freq, duty)
+		pwm.setup(self.Prigth, freq, duty)
+	end
 
-gpio.mode(0, gpio.OUTPUT)
-gpio.mode(1, gpio.OUTPUT)
-gpio.mode(2, gpio.OUTPUT)
-gpio.mode(3, gpio.OUTPUT)
-gpio.mode(4, gpio.OUTPUT)
-gpio.mode(5, gpio.OUTPUT)
+	function self.speed(sp)
+		if sp < 1 and sp > self.speed_max then
+			print("#DBG# motor.speed: bad value, 1-"..motor.speed_max.." range")
+			return
+		end
+		local freq = sp*1000/self.speed_max
+		local duty = 256*3
+		self.pwm(freq, duty)
+	end
 
-gpio.write(0, gpio.LOW)
-gpio.write(1, gpio.LOW)
-gpio.write(2, gpio.LOW)
-gpio.write(3, gpio.LOW)
-gpio.write(4, gpio.LOW)
-gpio.write(5, gpio.LOW)
+	function self.test()
+		local speed = self.speed
+		self.speed(10)
+		self.rotate("forward") self.move(1000000) tmr.delay(1000000)
+		self.rotate("back") self.move(1000000) tmr.delay(1000000)
+		self.rotate("left") self.move(1000000) tmr.delay(1000000)
+		self.rotate("rigth") self.move(1000000) tmr.delay(1000000)
+		tmr.delay(5000000)
+		self.rotate("forward") self.move(1000000) tmr.delay(1000000)
+		self.rotate("rigth") self.move(1000000) tmr.delay(1000000)
+		self.rotate("forward") self.move(1000000) tmr.delay(1000000)
+		self.rotate("rigth") self.move(1000000) tmr.delay(1000000)
+		self.rotate("forward") self.move(1000000) tmr.delay(1000000)
+		self.rotate("rigth") self.move(1000000) tmr.delay(1000000)
+		self.rotate("forward") self.move(1000000) tmr.delay(1000000)
+		self.rotate("rigth") self.move(1000000) tmr.delay(1000000)
+		self.speed(speed)
+	end
 
-gpio.write(0, gpio.HIGH)
-gpio.write(1, gpio.HIGH)
-gpio.write(2, gpio.HIGH)
-gpio.write(3, gpio.HIGH)
-gpio.write(4, gpio.HIGH)
-gpio.write(5, gpio.HIGH)
+	self.speed(5)
+	self.rotate("forward")
+	return self
+end
 
+function motor.test()
+        print("MOTOR ON");
+
+        period=1000000
+        freq=100
+        duty=512
+
+        motor_forward()
+        motor_pwm(freq, duty)
+        motor_start()
+        tmr.delay(period)
+        motor_stop()
+
+        tmr.delay(period)
+
+        motor_left()
+        motor_pwm(freq, duty)
+        motor_start()
+        tmr.delay(period)
+        motor_stop()
+end
+
+dev = motor.init(1,2,3,4)
