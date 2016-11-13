@@ -1,6 +1,6 @@
-laser = {}
+--laser = {}
 
-function laser.init(pin)
+function _dev_driver.init(pin)
 	local self = {}
 	self.pin = pin
 	self.freq = 0
@@ -34,8 +34,8 @@ function laser.init(pin)
 		end
 	end
 
-	self.tone(self.freq)
+	self.setup(self.freq)
 	return self
 end
 
-las=laser.init(1)
+--las=laser.init(1)

@@ -52,7 +52,7 @@ function motor.init(Pleft, Prigth, Cleft, Crigth)
 	end
 
 	function self.test()
-		local speed = self.speed
+		local speed = self.speed_max/2
 		self.speed(10)
 		self.rotate("forward") self.move(1000000) tmr.delay(1000000)
 		self.rotate("back") self.move(1000000) tmr.delay(1000000)
@@ -82,19 +82,19 @@ function motor.test()
         freq=100
         duty=512
 
-        motor_forward()
-        motor_pwm(freq, duty)
-        motor_start()
+        motor.forward()
+        motor.pwm(freq, duty)
+        motor.start()
         tmr.delay(period)
-        motor_stop()
+        motor.stop()
 
         tmr.delay(period)
 
-        motor_left()
-        motor_pwm(freq, duty)
-        motor_start()
+        motor.left()
+        motor.pwm(freq, duty)
+        motor.start()
         tmr.delay(period)
-        motor_stop()
+        motor.stop()
 end
 
 dev = motor.init(1,2,3,4)

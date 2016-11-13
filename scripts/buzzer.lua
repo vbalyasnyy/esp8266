@@ -1,35 +1,35 @@
-buzzer = {}
---[[
-https://www.arduino.cc/en/Tutorial/PlayMelody
- * timeHigh = 1/(2 * toneFrequency) = period / 2
- * note         frequency       period  PW (timeHigh)  
- * c            261 Hz          3830    1915    
- * d            294 Hz          3400    1700    
- * e            329 Hz          3038    1519    
- * f            349 Hz          2864    1432    
- * g            392 Hz          2550    1275    
- * a            440 Hz          2272    1136    
- * b            493 Hz          2028    1014   
- * C            523 Hz          1912    956
---]]
+--buzzer = {}
 
-function buzzer.init(pin)
+function _dev_driver.init(pin)
 	local self = {}
 	self.pin = pin
 	self.freq = 100
 	self.state = 0
-	function self.tone(freq)
+	function self.settone(freq)
 		self.freq = freq
 		pwm.setup(self.pin, self.freq, 512)
+		pwm.stop(self.pin)
 	end
-	function self.play(sec)
+	function self.playtone(sec)
 		pwm.start(self.pin)
 		tmr.delay(sec*1000000)
 		pwm.stop(self.pin)
 	end
 
-	self.tone(self.freq)
+	function self.play(note, time)
+		if note=="c" then self.settone(261) self.playtone(time)
+		elseif note=="d" then self.settone(294) self.playtone(time)
+		elseif note=="e" then self.settone(329) self.playtone(time)
+		elseif note=="f" then self.settone(349) self.playtone(time)
+		elseif note=="g" then self.settone(392) self.playtone(time)
+		elseif note=="a" then self.settone(440) self.playtone(time)
+		elseif note=="b" then self.settone(493) self.playtone(time)
+		elseif note=="C" then self.settone(523) self.playtone(time)
+		end
+	end
+
+	self.settone(self.freq)
 	return self
 end
 
-buz=buzzer.init(1)
+--buz=buzzer.init(1)

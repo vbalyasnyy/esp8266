@@ -1,11 +1,6 @@
--- [[ D0 GPIO16 0
--- [[ D1 GPIO05 1
--- [[ D2 GPIO04 2
---dofile("hcsr04.lua")
+--hcsr04 = {};
 
-hcsr04 = {};
-
-function hcsr04.init(pin_trig, pin_echo)
+function _dev_driver.init(pin_trig, pin_echo)
 	local self = {}
 	self.time_start = 0
 	self.time_end = 0
@@ -46,5 +41,5 @@ function hcsr04.init(pin_trig, pin_echo)
 	return self
 end
 
-dev = hcsr04.init(6, 5)
+--dev = hcsr04.init(6, 5)
 
